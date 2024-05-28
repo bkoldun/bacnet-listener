@@ -9,7 +9,7 @@ To run the simulator:
 ```
  node device_simulator.js
 ```
-![img.png](img.png)
+![3.png](images%2F3.png)
 
 ## BACnet 'whoIs' Listener #1
 
