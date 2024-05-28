@@ -1,56 +1,59 @@
 const dgram = require('dgram');
 
+// Create a new UDP client
+const client = dgram.createSocket('udp4');
+
+// Define the listener device settings
 const settings = {
-    deviceId: 443,
-    vendorId: 7
+    deviceId: 444,  // Unique device ID
+    vendorId: 7    // Vendor ID
 };
 
+// Set up an event listener for incoming messages
+client.on('message', (msg, rinfo) => {
+    console.log(`Received message from ${rinfo.address}:${rinfo.port}`);
 
-const udpServer = dgram.createSocket('udp4');
+    // Parse the received message (this part needs to be implemented based on your protocol)
+    const data = parseMessage(msg);
 
-udpServer.on('message', (msg, rinfo) => {
-    console.log('Received message')
-    // Parse the message to check if it is a Who-Is request
-    let decoded;
-    try {
-        decoded = bacnet.decodeFunction(msg);
-    } catch (err) {
-        console.error('Failed to decode message', err);
-        return;
-    }
+    // Check if the device ID is within the specified limits
+    if (data.lowLimit && data.lowLimit > settings.deviceId) return;
+    if (data.highLimit && data.highLimit < settings.deviceId) return;
 
-    if (decoded && decoded.service === bacnet.enum.ConfirmedServices.SERVICE_UNCONFIRMED_WHO_IS) {
-        console.log('whoIs', decoded);
-
-        if (decoded.lowLimit && decoded.lowLimit > settings.deviceId) return;
-        if (decoded.highLimit && decoded.highLimit < settings.deviceId) return;
-
-        const iAmMsg = bacnet.encodeFunction({
-            type: bacnet.enum.PDUTypes.PDU_TYPE_UNCONFIRMED_SERVICE_REQUEST,
-            service: bacnet.enum.UnconfirmedServices.SERVICE_UNCONFIRMED_I_AM,
-            payload: {
-                deviceId: settings.deviceId,
-                maxApdu: 1476,
-                segmentation: bacnet.enum.Segmentation.SEGMENTED_BOTH,
-                vendorId: settings.vendorId
-            }
-        });
-
-        udpServer.send(iAmMsg, 0, iAmMsg.length, rinfo.port, rinfo.address, (err) => {
-            if (err) {
-                console.error('Error sending I-Am response', err);
-            } else {
-                console.log('I-Am response sent to', rinfo.address);
-            }
-        });
-    }
+    // Respond with an 'I Am' message if within limits
+    const response = createIAmMessage(settings.deviceId, settings.vendorId);
+    client.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
+        if (err) console.error('Error sending response:', err);
+    });
 });
 
-udpServer.on('listening', () => {
-    const address = udpServer.address();
-    console.log(`UDP server listening on ${address.address}:${address.port}`);
+
+// deviceId: 444,
+//     maxApdu: 1482,
+//     segmentation: 0,
+//     vendorId: 7
+// }
+// Sending Who-Is request
+// Received whoIs request: {
+//     address: '192.168.31.195',
+
+
+// Bind the UDP client to a port
+client.bind(47808, '0.0.0.0',() => {
+    console.log('UDP listener started on port 47808');
 });
 
-udpServer.bind(47808); // BACnet default port
+// Function to parse the incoming message
+function parseMessage(msg) {
+    // Implement the parsing logic based on your protocol
+    return {
+        lowLimit: parseInt(msg.toString().split(',')[0]),
+        highLimit: parseInt(msg.toString().split(',')[1])
+    };
+}
 
-console.log('Node BACstack lister started');
+// Function to create an 'I Am' message
+function createIAmMessage(deviceId, vendorId) {
+    // Implement the creation of the 'I Am' message based on your protocol
+    return Buffer.from(`IAm,${deviceId},${vendorId}`);
+}
