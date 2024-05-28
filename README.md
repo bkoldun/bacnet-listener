@@ -9,6 +9,7 @@ To run the simulator:
 ```
  node device_simulator.js
 ```
+![img.png](img.png)
 
 ## BACnet 'whoIs' Listener #1
 
@@ -18,6 +19,7 @@ To run this listener:
 ```
  node listener-bacstack.js
 ```
+![2.png](images%2F2.png)
 
 ## BACnet 'whoIs' Listener #2
 
