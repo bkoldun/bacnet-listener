@@ -27,17 +27,6 @@ client.on('message', (msg, rinfo) => {
     });
 });
 
-
-// deviceId: 444,
-//     maxApdu: 1482,
-//     segmentation: 0,
-//     vendorId: 7
-// }
-// Sending Who-Is request
-// Received whoIs request: {
-//     address: '192.168.31.195',
-
-
 // Bind the UDP client to a port
 client.bind(47808, '0.0.0.0',() => {
     console.log('UDP listener started on port 47808');
