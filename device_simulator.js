@@ -32,7 +32,7 @@ const dataStore = {
 
 // Event listener for 'iAm' messages
 client.on('iAm', (device) => {
-    console.log('Received whoIs request:', device);
+    console.log('Received iAm request:', device);
 });
 
 // Event listener for 'readProperty' requests
