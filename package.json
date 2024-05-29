@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bacstack": "^0.0.1-beta.14"
+    "bacstack": "^0.0.1-beta.14",
+    "node-bacnet": "^0.2.4"
   }
 }
