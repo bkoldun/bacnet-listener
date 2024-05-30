@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "bacstack": "^0.0.1-beta.14",
-    "node-bacnet": "^0.2.4"
+    "ffi-napi": "^4.0.3",
+    "node-bacnet": "^0.2.4",
+    "ref-napi": "^3.0.3"
   }
 }
