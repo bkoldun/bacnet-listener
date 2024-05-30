@@ -35,7 +35,7 @@ function listenForWhoIs() {
         const message = bacnetLibrary.bacnet_process_whois();
         if (message) {
             handleWhoIs(message);
-        }
+        }xk
     }, 1000); // Adjust the interval as needed
 }
 
