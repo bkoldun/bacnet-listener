@@ -1,36 +1,42 @@
 const dgram = require('dgram');
 
-// Create a new UDP client
-const client = dgram.createSocket('udp4');
-
 // Define the listener device settings
 const settings = {
     deviceId: 444,  // Unique device ID
     vendorId: 7    // Vendor ID
 };
 
-// Set up an event listener for incoming messages
-client.on('message', (msg, rinfo) => {
-    console.log(`Received message from ${rinfo.address}:${rinfo.port}`);
+// Define the range of ports
+const startPort = 47808;
+const endPort = 47818;
 
-    // Parse the received message (this part needs to be implemented based on your protocol)
-    const data = parseMessage(msg);
+// Function to create and bind a UDP client to a specific port
+function createClient(port) {
+    const client = dgram.createSocket('udp4');
 
-    // Check if the device ID is within the specified limits
-    if (data.lowLimit && data.lowLimit > settings.deviceId) return;
-    if (data.highLimit && data.highLimit < settings.deviceId) return;
+    client.on('message', (msg, rinfo) => {
+        console.log(`Received message on port ${port} from ${rinfo.address}:${rinfo.port}`);
 
-    // Respond with an 'I Am' message if within limits
-    const response = createIAmMessage(settings.deviceId, settings.vendorId);
-    client.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
-        if (err) console.error('Error sending response:', err);
+        // Parse the received message
+        const data = parseMessage(msg);
+
+        // Check if the device ID is within the specified limits
+        if (data.lowLimit && data.lowLimit > settings.deviceId) return;
+        if (data.highLimit && data.highLimit < settings.deviceId) return;
+
+        // Respond with an 'I Am' message if within limits
+        const response = createIAmMessage(settings.deviceId, settings.vendorId);
+        client.send(response, 0, response.length, rinfo.port, rinfo.address, (err) => {
+            if (err) console.error('Error sending response:', err);
+        });
     });
-});
 
-// Bind the UDP client to a port
-client.bind(47808, '0.0.0.0',() => {
-    console.log('UDP listener started on port 47808');
-});
+    client.bind(port, '0.0.0.0', () => {
+        console.log(`UDP listener started on port ${port}`);
+    });
+
+    return client;
+}
 
 // Function to parse the incoming message
 function parseMessage(msg) {
@@ -45,4 +51,9 @@ function parseMessage(msg) {
 function createIAmMessage(deviceId, vendorId) {
     // Implement the creation of the 'I Am' message based on your protocol
     return Buffer.from(`IAm,${deviceId},${vendorId}`);
+}
+
+// Create clients for each port in the specified range
+for (let port = startPort; port <= endPort; port++) {
+    createClient(port);
 }
